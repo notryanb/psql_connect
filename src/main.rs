@@ -13,7 +13,8 @@ fn main() -> std::io::Result<()> {
     // let config = &result.configs[0];
 
     let aliases = result.list_aliases();
-    println!("Aliases: {:?}", aliases);
+    let selected = result.select_config("mlr-staging");
+    println!("Config: {:?}", selected);
 
     // connect_to_config(&config);
 
