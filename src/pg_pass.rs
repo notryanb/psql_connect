@@ -95,4 +95,29 @@ mod tests {
         let result = config_list.select_config("test");
         assert_eq!(result, None);
     }
+    
+    #[test]
+    fn selecting_existing_config() {
+        let config = PgConfig {
+            alias: Some("test".into()),
+            hostname: "test".into(),
+            port: 1234,
+            dbname: "test".into(),
+            username: "test".into(),
+            password: "test".into(),
+        };
+        
+        let expected = PgConfig {
+            alias: Some("test".into()),
+            hostname: "test".into(),
+            port: 1234,
+            dbname: "test".into(),
+            username: "test".into(),
+            password: "test".into(),
+        };
+
+        let config_list = PgConfigList { configs: vec![config] };
+        let result = config_list.select_config("test").unwrap();
+        assert_eq!(*result, expected);
+    }
 }
