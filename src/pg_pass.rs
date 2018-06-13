@@ -10,26 +10,21 @@ pub struct PgConfigList {
 
 impl PgConfigList {
     pub fn new() -> PgConfigList {
-        PgConfigList { 
+        PgConfigList {
             configs: Vec::new(),
         }
     }
 
     pub fn add(&mut self, config: PgConfig) {
-        self.configs.push(config); 
+        self.configs.push(config);
     }
 
     pub fn list_aliases(&self) -> Vec<Option<&String>> {
-        self
-            .configs
-            .iter()
-            .map(|cfg| cfg.alias.as_ref())
-            .collect()
+        self.configs.iter().map(|cfg| cfg.alias.as_ref()).collect()
     }
 
     pub fn select_config(&self, alias: &str) -> Option<&PgConfig> {
-        let config: Vec<_> = self
-            .configs
+        let config: Vec<_> = self.configs
             .iter()
             .filter(|cfg| cfg.alias.as_ref().unwrap() == alias)
             .collect();
@@ -39,7 +34,6 @@ impl PgConfigList {
             1 => Some(config[0]),
             _ => None,
         }
-
     }
 }
 
@@ -95,7 +89,7 @@ mod tests {
         let result = config_list.select_config("test");
         assert_eq!(result, None);
     }
-    
+
     #[test]
     fn selecting_existing_config() {
         let config = PgConfig {
@@ -106,7 +100,7 @@ mod tests {
             username: "test".into(),
             password: "test".into(),
         };
-        
+
         let expected = PgConfig {
             alias: Some("test".into()),
             hostname: "test".into(),
@@ -116,7 +110,9 @@ mod tests {
             password: "test".into(),
         };
 
-        let config_list = PgConfigList { configs: vec![config] };
+        let config_list = PgConfigList {
+            configs: vec![config],
+        };
         let result = config_list.select_config("test").unwrap();
         assert_eq!(*result, expected);
     }
