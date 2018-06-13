@@ -1,14 +1,40 @@
+#![recursion_limit = "1024"]
+
+#[macro_use]
+extern crate error_chain;
 extern crate clap;
 
-use clap::{App, Arg, SubCommand};
-
 mod pg_pass;
+mod errors;
+
+use clap::{App, Arg, SubCommand};
+use errors::*;
 
 use std::process::Command;
 use self::pg_pass::*;
 
-fn main() -> std::io::Result<()> {
-    let result = parse_pg_pass()?;
+fn main() {
+    if let Err(ref e) = run() {
+        println!("error: {}", e);
+
+        for e in e.iter().skip(1) {
+            println!("caused by: {}", e);
+        }
+
+        // The backtrace is not always generated. Try to run this example
+        // with `RUST_BACKTRACE=1`.
+        if let Some(backtrace) = e.backtrace() {
+            println!("backtrace: {:?}",
+                     backtrace);
+        }
+
+        ::std::process::exit(1);
+    }
+}
+
+
+fn run() -> Result<()> {
+    let result = parse_pg_pass().chain_err(|| "couldn't parse pgpass").unwrap();
 
     let matches = App::new("Psql Connect")
         .version("0.0.2")
@@ -35,17 +61,19 @@ fn main() -> std::io::Result<()> {
         aliases
             .iter()
             .enumerate()
-            .for_each(|(idx, alias)| println!("{}: {}", idx + 1, alias.unwrap()));
+            .for_each(|(idx, alias)| println!("{}: {}", idx + 1, alias));
     }
 
     if let Some(alias) = matches.value_of("connect") {
-        let selected = result.select_config(alias).unwrap();
+        let selected = result.select_config(alias).chain_err(|| "Couldn't select alias")?;
         println!("Connecting to: {}", alias);
         connect_to_config(&selected);
     }
 
     Ok(())
 }
+
+
 
 pub fn connect_to_config(config: &PgConfig) {
     let psql = Command::new("psql")
