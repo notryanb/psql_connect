@@ -1,7 +1,12 @@
 [package]
 name = "psql_connect"
-version = "0.0.2"
+version = "0.0.3"
 authors = ["Ryan B <notryanb@gmail.com>"]
+description = "A CLI tool to help logging into Postgres easier"
+keywords = ["postgres", "psql", "cli"]
+homepage = "https://github.com/notryanb/psql_connect"
+readme = "README.md"
 
 [dependencies]
 clap = "~2.31"
+error-chain = "~0.11.0"
