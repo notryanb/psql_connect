@@ -15,7 +15,7 @@ use self::pg_pass::*;
 
 fn main() {
     if let Err(ref e) = run() {
-        println!("error: {}", e);
+        println!("psql_connect: Error: {}", e);
 
         for e in e.iter().skip(1) {
             println!("caused by: {}", e);
@@ -39,8 +39,8 @@ fn run() -> Result<()> {
         Err(e) => return Err(e)
     };
 
-    let matches = App::new("Psql Connect")
-        .version("0.0.2")
+    let matches = App::new("psql_connect")
+        .version(env!("CARGO_PKG_VERSION"))
         .author("Ryan Blecher <notryanb@gmail.com")
         .about("Easily connect to a postgres database configured via a `.pg_pass` file")
         .arg(
@@ -69,7 +69,6 @@ fn run() -> Result<()> {
 
     if let Some(alias) = matches.value_of("connect") {
         let selected = config_list.select_config(alias)?;
-        println!("Connecting to: {}", alias);
         connect_to_config(&selected);
     }
 

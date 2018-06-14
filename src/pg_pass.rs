@@ -57,10 +57,6 @@ pub fn parse_pg_pass() -> Result<PgConfigList> {
     let file_path = Path::new(".pgpass");
     let pg_pass_path = home.join(file_path);
     let pg_pass_file = File::open(pg_pass_path).chain_err(|| "Unable to open .pgpass")?;
-    // {
-    //     Ok(file) => file,
-    //     Err(e) => return Err(e)
-    // };
     let reader = BufReader::new(pg_pass_file);
     let mut config_list = PgConfigList::new();
 
@@ -142,15 +138,6 @@ mod tests {
         };
 
         let config_2 = config.clone();
-        
-        // let config_2 = PgConfig {
-        //     alias: "test_alias".into(),
-        //     hostname: "test_hostname".into(),
-        //     port: 1234,
-        //     dbname: "test".into(),
-        //     username: "test".into(),
-        //     password: "test".into(),
-        // };
         
         let config_list = PgConfigList { configs: vec![config, config_2] };
         let result = config_list.select_config("test_alias");
