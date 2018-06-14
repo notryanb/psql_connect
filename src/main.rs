@@ -7,7 +7,7 @@ extern crate clap;
 mod pg_pass;
 mod errors;
 
-use clap::{App, Arg, SubCommand};
+use clap::{App, Arg};
 use errors::*;
 
 use std::process::Command;
@@ -34,7 +34,10 @@ fn main() {
 
 
 fn run() -> Result<()> {
-    let result = parse_pg_pass().chain_err(|| "couldn't parse pgpass").unwrap();
+    let config_list = match parse_pg_pass() {
+        Ok(configs) => configs,
+        Err(e) => return Err(e)
+    };
 
     let matches = App::new("Psql Connect")
         .version("0.0.2")
@@ -57,7 +60,7 @@ fn run() -> Result<()> {
         .get_matches();
 
     if matches.is_present("list") {
-        let aliases = result.list_aliases();
+        let aliases = config_list.list_aliases();
         aliases
             .iter()
             .enumerate()
@@ -65,7 +68,7 @@ fn run() -> Result<()> {
     }
 
     if let Some(alias) = matches.value_of("connect") {
-        let selected = result.select_config(alias).chain_err(|| "Couldn't select alias")?;
+        let selected = config_list.select_config(alias)?;
         println!("Connecting to: {}", alias);
         connect_to_config(&selected);
     }
